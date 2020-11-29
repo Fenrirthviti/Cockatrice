@@ -78,11 +78,7 @@ jobs:
 
       - name: Build ${{matrix.distro}} Docker image
         shell: bash
-        run: |
-          source .ci/docker.sh --build
-          export BUILD_SCRIPT="./ccache-stats.sh"
-          echo "ccache --show-stats" >$BUILD_SCRIPT
-          RUN # show stats in container instead of build
+        run: source .ci/docker.sh --build
 
       - name: Build debug and test
         if: matrix.test != 'skip'
@@ -93,39 +89,31 @@ jobs:
 
       - name: Build release package
         if: matrix.package != 'skip'
-        id: build_package
         shell: bash
         run: |
           source .ci/docker.sh
-          RUN --server --release --package ${{matrix.distro}} ${{matrix.package}}
-          file=$(cd build && echo Cockatrice-*.*)
-          echo "::set-output name=file::$file"
+          RUN --server --release --package ${{matrix.package}}
+
+      - name: Rename output file and get upload URL
+        if: matrix.package != 'skip'
+        id: name
+        shell: bash
+        run: ./.ci/name_build.sh "-${{matrix.distro}}"
 
       - name: Upload artifacts
         if: matrix.package != 'skip'
         uses: actions/upload-artifact@v2
         with:
           name: ${{matrix.distro}}-package
-          path: build/${{steps.build_package.outputs.file}}
+          path: ${{steps.name.outputs.file}}
 
-      - name: Get release upload url
-        if: matrix.package != 'skip' && startsWith(github.ref, 'refs/tags/')
-        id: get_url
-        shell: bash
-        env:
-          ref: "${{github.ref}}"
-          repo: "${{github.repository}}"
-        run: |
-          url="$(./.ci/get_github_upload_url.sh)"
-          echo "::set-output name=upload_url::$url"
-
-      - name: Upload release to GitHub
-        if: steps.get_url.outcome == 'success'
+      - name: Upload release ${{steps.name.outputs.name}}
+        if: steps.name.outputs.upload_url != null
         uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
-          upload_url: ${{steps.get_url.outputs.upload_url}}
-          asset_path: build/${{steps.build_package.outputs.file}}
-          asset_name: ${{steps.build_package.outputs.file}}
+          upload_url: ${{steps.name.outputs.upload_url}}
+          asset_path: ${{steps.name.outputs.file}}
+          asset_name: ${{steps.name.outputs.name}}
           asset_content_type: binary_package # required but arbitrary

@@ -6,14 +6,13 @@ on:
       - master
     paths-ignore:
       - '**.md'
+    tags:
+      - '*'
   pull_request:
     branches:
       - master
     paths-ignore:
       - '**.md'
-  release:
-    types:
-      - published
 
 jobs:
   win64:
@@ -146,4 +145,70 @@ jobs:
         with:
           name: 'Cockatrice-${{ env.GIT_TAG }}-32bit'
           path: './*.exe'
+  make-release:
+    name: 'Create and upload release'
+    runs-on: [ubuntu-latest]
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    needs: [win32,win64]
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - name: 'Fetch git tags and generate file name'
+        shell: bash
+        run: |
+          git fetch --prune --unshallow
+          echo "GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
+          echo "GIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "GIT_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+      - name: 'Checking if beta'
+        if: contains(env.GIT_TAG, 'beta')
+        shell: bash
+        run: |
+          echo 'IS_BETA=true' >> $GITHUB_ENV
+      - name: 'Checking if beta'
+        if: "!contains(env.GIT_TAG, 'beta')"
+        shell: bash
+        run: |
+          echo 'IS_BETA=false' >> $GITHUB_ENV
+      - name: 'Create Release'
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.GIT_TAG }}
+          release_name: OBS Studio ${{ env.GIT_TAG }}
+          draft: true
+          prerelease: ${{ env.IS_BETA }}
+      - name: 'Generate filenames'
+        shell: bash
+        run: |
+          FILE_NAME=Cockatrice-${{ env.GIT_TAG }}-${{ env.GIT_HASH }}
+          echo "FILE_NAME=${FILE_NAME}" >> $GITHUB_ENV
+      - name: 'Download artifacts'
+        uses: actions/download-artifact@v2
+        with:
+          path: ./
+      - name: 'open tmate'    
+        uses: mxschmitt/action-tmate@v3
+      - name: 'Upload 32bit to release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ env.FILE_NAME }}-32bit-installer.exe
+          asset_name: Cockatrice-${{ env.GIT_TAG }}-32bit-installer.exe
+          asset_content_type: application/octet-stream
+      - name: 'Upload 64bit to release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ env.FILE_NAME }}-64bit-installer.exe
+          asset_name: Cockatrice-${{ env.GIT_TAG }}-64bit-installer.exe
+          asset_content_type: application/octet-stream
 

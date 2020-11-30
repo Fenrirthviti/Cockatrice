@@ -191,16 +191,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           path: ./
-      - name: 'open tmate session'    
-        uses: mxschmitt/action-tmate@v3
       - name: 'Upload 32bit to release'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ env.FILE_NAME }}-32bit-installer.exe
-          asset_name: Cockatrice-${{ env.GIT_TAG }}-32bit-installer.exe
+          asset_path: ./Cockatrice-${{ env.GIT_TAG }}-32bit
+          asset_name: ${{ env.FILE_NAME }}-32bit-installer.exe
           asset_content_type: application/octet-stream
       - name: 'Upload 64bit to release'
         uses: actions/upload-release-asset@v1
@@ -208,7 +206,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ env.FILE_NAME }}-64bit-installer.exe
-          asset_name: Cockatrice-${{ env.GIT_TAG }}-64bit-installer.exe
+          asset_path: ./Cockatrice-${{ env.GIT_TAG }}-64bit
+          asset_name: ${{ env.FILE_NAME }}-64bit-installer.exe
           asset_content_type: application/octet-stream
 

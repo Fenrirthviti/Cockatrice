@@ -100,7 +100,7 @@ jobs:
         shell: bash
         run: |
           # artifacts built on docker are made by a different user
-          sudo chmod 777 build/Cockatrice-*
+          sudo chmod 777 build
           ./.ci/name_build.sh "-${{matrix.distro}}"
 
       - name: Upload artifacts

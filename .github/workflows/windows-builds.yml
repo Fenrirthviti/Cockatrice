@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - github-actions-testing
     paths-ignore:
       - '**.md'
     tags:
@@ -50,13 +51,13 @@ jobs:
           version: '${{ env.QT_VERSION }}'
           arch: 'win64_msvc2017_64'
           dir: ${{ runner.workspace }}/Qt64
-      - name: 'Restore vcpkg from cache'
-        id: cache-vcpkg64
-        uses: actions/cache@v2
-        with:
-          path: |
-            ${{ github.workspace }}/build64/vcpkg_installed
-          key: ${{ runner.os }}-vcpkgCache-64bit
+     - name: 'Restore or setup vcpkg (do not install any package)'
+       uses: lukka/run-vcpkg@v6
+       with:
+         setupOnly: true
+         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+         appendedCacheKey: ${{ hashFiles( '**/vcpkg.json' ) }}
+         vcpkgTriplet: ${{ matrix.triplet }}
       - name: 'Configure Cockatrice 64-bit'
         working-directory: ${{ github.workspace }}
         run: |
@@ -116,13 +117,13 @@ jobs:
           version: '${{ env.QT_VERSION }}'
           arch: 'win32_msvc2017'
           dir: ${{ runner.workspace }}/Qt32
-      - name: 'Restore vcpkg from cache'
-        id: cache-vcpkg32
-        uses: actions/cache@v2
-        with:
-          path: |
-            ${{ github.workspace }}/build32/vcpkg_installed
-          key: ${{ runner.os }}-vcpkgCache-32bit
+     - name: 'Restore or setup vcpkg (do not install any package)'
+       uses: lukka/run-vcpkg@v6
+       with:
+         setupOnly: true
+         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+         appendedCacheKey: ${{ hashFiles( '**/vcpkg.json' ) }}
+         vcpkgTriplet: ${{ matrix.triplet }}
       - name: 'Configure Cockatrice 32-bit'
         working-directory: ${{ github.workspace }}
         run: |

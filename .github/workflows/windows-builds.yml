@@ -51,13 +51,13 @@ jobs:
           version: '${{ env.QT_VERSION }}'
           arch: 'win64_msvc2017_64'
           dir: ${{ runner.workspace }}/Qt64
-      - name: 'Restore or setup vcpkg (do not install any package)'
+      - name: 'Restore or setup vcpkg'
         uses: lukka/run-vcpkg@v6
         with:
-          setupOnly: false
+          vcpkgArguments: '@${{ github.workspace }}/vcpkg.txt'
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-          appendedCacheKey: ${{ hashFiles( '**/vcpkg.json' ) }}
-          vcpkgTriplet: ${{ matrix.triplet }}
+          appendedCacheKey: ${{ hashFiles( ${{ github.workspace }}/vcpkg.txt ) }}
+          vcpkgTriplet: x64-windows
       - name: 'Configure Cockatrice 64-bit'
         working-directory: ${{ github.workspace }}
         run: |
@@ -117,13 +117,13 @@ jobs:
           version: '${{ env.QT_VERSION }}'
           arch: 'win32_msvc2017'
           dir: ${{ runner.workspace }}/Qt32
-      - name: 'Restore or setup vcpkg (do not install any package)'
+      - name: 'Restore or setup vcpkg'
         uses: lukka/run-vcpkg@v6
         with:
-          setupOnly: false
+          vcpkgArguments: '@${{ github.workspace }}/vcpkg.txt'
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-          appendedCacheKey: ${{ hashFiles( '**/vcpkg.json' ) }}
-          vcpkgTriplet: ${{ matrix.triplet }}
+          appendedCacheKey: ${{ hashFiles( ${{ github.workspace }}/vcpkg.txt ) }}
+          vcpkgTriplet: x86-windows
       - name: 'Configure Cockatrice 32-bit'
         working-directory: ${{ github.workspace }}
         run: |

@@ -29,7 +29,6 @@ endif()
 
 if(WIN32)
     # Use vcpkg toolchain on Windows
-	message(STATUS "vcpkg install may take a few minutes, please be patient")
     set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake
         CACHE STRING "Vcpkg toolchain file")
     # Qt path set by user or env var

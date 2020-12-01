@@ -54,7 +54,7 @@ jobs:
       - name: 'Restore or setup vcpkg (do not install any package)'
         uses: lukka/run-vcpkg@v6
         with:
-          setupOnly: true
+          setupOnly: false
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
           appendedCacheKey: ${{ hashFiles( '**/vcpkg.json' ) }}
           vcpkgTriplet: ${{ matrix.triplet }}
@@ -120,7 +120,7 @@ jobs:
       - name: 'Restore or setup vcpkg (do not install any package)'
         uses: lukka/run-vcpkg@v6
         with:
-          setupOnly: true
+          setupOnly: false
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
           appendedCacheKey: ${{ hashFiles( '**/vcpkg.json' ) }}
           vcpkgTriplet: ${{ matrix.triplet }}

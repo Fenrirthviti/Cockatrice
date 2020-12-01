@@ -98,7 +98,10 @@ jobs:
         if: matrix.package != 'skip'
         id: name
         shell: bash
-        run: ./.ci/name_build.sh "-${{matrix.distro}}"
+        run: |
+          # artifacts built on docker are made by a different user
+          sudo chmod 777 build/Cockatrice-*
+          ./.ci/name_build.sh "-${{matrix.distro}}"
 
       - name: Upload artifacts
         if: matrix.package != 'skip'

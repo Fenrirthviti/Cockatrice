@@ -29,6 +29,7 @@ endif()
 
 if(WIN32)
     # Use vcpkg toolchain on Windows
+	message(STATUS "vcpkg install may take a few minutes, please be patient")
     set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake
         CACHE STRING "Vcpkg toolchain file")
     # Qt path set by user or env var
@@ -38,6 +39,7 @@ if(WIN32)
         message(WARNING "QTDIR variable is missing.  Please set this variable to specify path to Qt (e.g. C:/Qt/5.7/msvc2015_64)")
     endif()
 endif()
+
 # A project name is needed for CPack
 # Version can be overriden by git tags, see cmake/getversion.cmake
 PROJECT("Cockatrice" VERSION 2.7.6)
@@ -52,7 +54,11 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # Search path for cmake modules
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-# Retrieve git version hash
+
+if(NOT DEFINED GIT_TAG_RELEASENAME)
+    set(GIT_TAG_RELEASENAME "Blessed Sanctuary")
+endif()
+
 include(getversion)
 
 # Create a header and a cpp file containing the version hash
@@ -95,7 +101,7 @@ if(UNIX)
         endif()
     endif()
 elseif(WIN32)
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/release)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/rundir/${CMAKE_BUILD_TYPE})
 endif()
 
 # Treat warnings as errors (Debug builds only)
@@ -103,10 +109,17 @@ option(WARNING_AS_ERROR "Treat warnings as errors in debug builds" ON)
 
 # Define proper compilation flags
 IF(MSVC)
-    # Visual Studio:
-    # Maximum optimization
-    # Disable warning C4251
-    set(CMAKE_CXX_FLAGS_RELEASE "/Ox /MD /wd4251")
+    # Visual Studio: Maximum optimization, disable warning C4251
+    set(CMAKE_CXX_FLAGS_RELEASE "/Ox /MD /wd4251 ")
+    if(protobuf_MSVC_STATIC_RUNTIME)
+        foreach(flag_var
+            CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+            CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+            if(${flag_var} MATCHES "/MD")
+                string(REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+            endif(${flag_var} MATCHES "/MD")
+        endforeach()
+    endif()
     # Generate complete debugging information
     #set(CMAKE_CXX_FLAGS_DEBUG "/Zi")
 ELSEIF (CMAKE_COMPILER_IS_GNUCXX)
@@ -142,15 +155,24 @@ ENDIF()
 FIND_PACKAGE(Threads REQUIRED)
 
 # Find Qt5
-if(DEFINED QTDIR${_lib_suffix})
-	list(APPEND CMAKE_PREFIX_PATH "${QTDIR${_lib_suffix}}")
-elseif(DEFINED QTDIR)
-	list(APPEND CMAKE_PREFIX_PATH "${QTDIR}")
-elseif(DEFINED ENV{QTDIR${_lib_suffix}})
-	list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR${_lib_suffix}}")
-elseif(DEFINED ENV{QTDIR})
-	list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR}")
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(_lib_suffix 64)
+else()
+    set(_lib_suffix 32)
 endif()
+
+if(DEFINED QTDIR${_lib_suffix})
+    list(APPEND CMAKE_PREFIX_PATH "${QTDIR${_lib_suffix}}")
+elseif(DEFINED QTDIR)
+    list(APPEND CMAKE_PREFIX_PATH "${QTDIR}")
+elseif(DEFINED ENV{QTDIR${_lib_suffix}})
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR${_lib_suffix}}")
+elseif(DEFINED ENV{QTDIR})
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR}")
+endif()
+
+OPTION(UPDATE_TRANSLATIONS "Update translations on compile" OFF)
+MESSAGE(STATUS "UPDATE TRANSLATIONS: ${UPDATE_TRANSLATIONS}")
 
 FIND_PACKAGE(Qt5Core 5.5.0 REQUIRED)
 
@@ -171,16 +193,14 @@ ELSE()
     MESSAGE(FATAL_ERROR "No Qt5 found!")
 ENDIF()
 
-# Check for translation updates
-OPTION(UPDATE_TRANSLATIONS "Update translations on compile" OFF)
-MESSAGE(STATUS "UPDATE TRANSLATIONS: ${UPDATE_TRANSLATIONS}")
-
 set(CMAKE_AUTOMOC TRUE)
 
 # Find other needed libraries
 FIND_PACKAGE(Protobuf REQUIRED)
 IF(NOT EXISTS "${Protobuf_PROTOC_EXECUTABLE}")
-  MESSAGE(FATAL_ERROR "No protoc command found!")
+    MESSAGE(FATAL_ERROR "No protoc command found!")
+ELSE()
+    MESSAGE(STATUS "Protoc found!")
 ENDIF()
 
 #Find OpenSSL

@@ -111,15 +111,6 @@ option(WARNING_AS_ERROR "Treat warnings as errors in debug builds" ON)
 IF(MSVC)
     # Visual Studio: Maximum optimization, disable warning C4251
     set(CMAKE_CXX_FLAGS_RELEASE "/Ox /MD /wd4251 ")
-    if(protobuf_MSVC_STATIC_RUNTIME)
-        foreach(flag_var
-            CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-            CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-            if(${flag_var} MATCHES "/MD")
-                string(REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-            endif(${flag_var} MATCHES "/MD")
-        endforeach()
-    endif()
     # Generate complete debugging information
     #set(CMAKE_CXX_FLAGS_DEBUG "/Zi")
 ELSEIF (CMAKE_COMPILER_IS_GNUCXX)

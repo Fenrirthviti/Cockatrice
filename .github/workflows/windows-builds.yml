@@ -30,13 +30,13 @@ jobs:
           - os: windows64
             arch: '64'
             qt-arch: 'win64_msvc2017_64'
-            qtdir: '${{ runner.workspace }}\Qt64\Qt\5.12.9\msvc2017_64'
+            qtdir: '\Qt64\Qt\5.12.9\msvc2017_64'
             cmake-arch: 'x64'
         include:
           - os: windows32
             arch: '32'
             qt-arch: 'win32_msvc2017'
-            qtdir: '${{ runner.workspace }}\Qt32\Qt\5.12.9\msvc2017'
+            qtdir: '\Qt32\Qt\5.12.9\msvc2017'
             cmake-arch: 'Win32'
     steps:
       - name: 'Add msbuild to PATH'
@@ -85,7 +85,7 @@ jobs:
         run: |
           New-Item build${{ matrix.arch }} -type directory -force
           cd build${{ matrix.arch }}
-          cmake .. -G "${{ env.CMAKE_GENERATOR }}" -A "${{ matrix.cmake-arch }}" -DQTDIR="${{ matrix.qtdir }}" -DCMAKE_BUILD_TYPE="Release" -DWITH_SERVER=1 -DTEST=t
+          cmake .. -G "${{ env.CMAKE_GENERATOR }}" -A "${{ matrix.cmake-arch }}" -DQTDIR="${{ runner.workspace }}${{ matrix.qtdir }}" -DCMAKE_BUILD_TYPE="Release" -DWITH_SERVER=1 -DTEST=t
 
       - name: 'Build Cockatrice ${{ matrix.arch }}-bit'
         working-directory: ${{ github.workspace }}

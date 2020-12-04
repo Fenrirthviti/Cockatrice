@@ -32,7 +32,7 @@ jobs:
             qt-arch: 'win64_msvc2017_64'
             qtdir: '\Qt64\Qt\5.12.9\msvc2017_64'
             cmake-arch: 'x64'
-        include:
+
           - os: windows32
             arch: '32'
             qt-arch: 'win32_msvc2017'

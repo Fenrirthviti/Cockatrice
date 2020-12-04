@@ -22,22 +22,24 @@ jobs:
     env:
       QT_VERSION: '5.12.9'
       CMAKE_GENERATOR: "Visual Studio 16 2019"
-    matrix:
-      target: [windows64, windows32]
-      include:
-        - target: windows64
-          os: windows-latest
-          arch: '64'
-          qt-arch: 'win64_msvc2017_64'
-          qtdir: '\Qt64\Qt\5.12.9\msvc2017_64'
-          cmake-arch: 'x64'
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [windows64, windows32]
+        include:
+          - target: windows64
+            os: windows-latest
+            arch: '64'
+            qt-arch: 'win64_msvc2017_64'
+            qtdir: '\Qt64\Qt\5.12.9\msvc2017_64'
+            cmake-arch: 'x64'
 
-        - target: windows32
-          os: windows-latest
-          arch: '32'
-          qt-arch: 'win32_msvc2017'
-          qtdir: '\Qt32\Qt\5.12.9\msvc2017'
-          cmake-arch: 'Win32'
+          - target: windows32
+            os: windows-latest
+            arch: '32'
+            qt-arch: 'win32_msvc2017'
+            qtdir: '\Qt32\Qt\5.12.9\msvc2017'
+            cmake-arch: 'Win32'
 
     steps:
       - name: 'Add msbuild to PATH'

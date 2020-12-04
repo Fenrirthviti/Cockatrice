@@ -57,7 +57,7 @@ jobs:
           echo "GIT_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       - name: 'Restore Qt ${{ matrix.arch }}-bit from cache'
-        id: cache-qt${{ matrix.arch }}
+        id: cache-qt
         uses: actions/cache@v2
         with:
           path: |

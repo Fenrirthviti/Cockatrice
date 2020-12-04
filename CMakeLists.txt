@@ -54,7 +54,7 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # Search path for cmake modules
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-
+# Set release name if not provided via env var
 if(NOT DEFINED GIT_TAG_RELEASENAME)
     set(GIT_TAG_RELEASENAME "Blessed Sanctuary")
 endif()
@@ -171,9 +171,6 @@ elseif(DEFINED ENV{QTDIR})
     list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR}")
 endif()
 
-OPTION(UPDATE_TRANSLATIONS "Update translations on compile" OFF)
-MESSAGE(STATUS "UPDATE TRANSLATIONS: ${UPDATE_TRANSLATIONS}")
-
 FIND_PACKAGE(Qt5Core 5.5.0 REQUIRED)
 
 IF(Qt5Core_FOUND)
@@ -192,6 +189,9 @@ IF(Qt5Core_FOUND)
 ELSE()
     MESSAGE(FATAL_ERROR "No Qt5 found!")
 ENDIF()
+
+OPTION(UPDATE_TRANSLATIONS "Update translations on compile" OFF)
+MESSAGE(STATUS "UPDATE TRANSLATIONS: ${UPDATE_TRANSLATIONS}")
 
 set(CMAKE_AUTOMOC TRUE)
 
@@ -292,7 +292,7 @@ if(WITH_ORACLE)
 endif()
 
 # Compile dbconverter (default on)
-option(WITH_DBCONVERTER "build oracle" ON)
+option(WITH_DBCONVERTER "build dbconverter" ON)
 if(WITH_DBCONVERTER)
     add_subdirectory(dbconverter)
     SET(CPACK_INSTALL_CMAKE_PROJECTS "Dbconverter;Dbconverter;ALL;/" ${CPACK_INSTALL_CMAKE_PROJECTS})

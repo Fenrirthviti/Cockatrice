@@ -18,7 +18,7 @@ on:
 jobs:
   windows-builds:
     name: 'Windows ${{ matrix.arch }}-bit'
-    runs-on: ${{ matrix.os }
+    runs-on: ${{ matrix.os }}
     env:
       QT_VERSION: '5.12.9'
       CMAKE_GENERATOR: "Visual Studio 16 2019"

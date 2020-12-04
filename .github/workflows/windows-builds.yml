@@ -27,13 +27,13 @@ jobs:
       matrix:
         target: [windows64, windows32]
         include:
-          - os: windows64
+          - target: windows64
             arch: '64'
             qt-arch: 'win64_msvc2017_64'
             qtdir: '\Qt64\Qt\5.12.9\msvc2017_64'
             cmake-arch: 'x64'
 
-          - os: windows32
+          - target: windows32
             arch: '32'
             qt-arch: 'win32_msvc2017'
             qtdir: '\Qt32\Qt\5.12.9\msvc2017'
@@ -57,7 +57,7 @@ jobs:
           echo "GIT_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       - name: 'Restore Qt ${{ matrix.arch }}-bit from cache'
-        id: cache-qt32
+        id: cache-qt${{ matrix.arch }}
         uses: actions/cache@v2
         with:
           path: |

@@ -60,7 +60,6 @@ jobs:
           echo "GIT_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       - name: 'Restore Qt ${{ matrix.arch }}-bit from cache'
-        id: 'cache-qt${{ matrix.arch }}'
         uses: actions/cache@v2
         with:
           path: |
@@ -76,7 +75,6 @@ jobs:
           dir: ${{ runner.workspace }}/Qt${{ matrix.arch }}
 
       - name: 'Restore vcpkg ${{ matrix.arch }}-bit from cache'
-        id: 'cache-vcpkg${{ matrix.arch }}'
         uses: actions/cache@v2
         with:
           path: |

@@ -301,13 +301,7 @@ jobs:
         shell: bash
         working-directory: build
         run: |
-          # temporary workaround for big sur images having old cmake
-          if [[ ${{matrix.os}} == macos-11.0 ]]; then
-            curl -L https://github.com/Kitware/CMake/releases/download/v3.19.0/cmake-3.19.0-Darwin-x86_64.tar.gz | tar -xz
-            ./cmake-3.19.0-Darwin-x86_64/CMake.app/Contents/bin/cpack --config ./CPackConfig.cmake
-          else
-            cmake --build . --target package
-          fi
+          cmake --build . --target package
           ./.ci/name_build.sh "-macOS-${{matrix.target}}"
 
       - name: Upload artifacts
@@ -330,6 +324,7 @@ jobs:
 
   windows-build:
     strategy:
+      fail-fast: false
       matrix:
         arch:
           - 64
@@ -337,10 +332,12 @@ jobs:
         include:
           - arch: 64
             triplet: x64
+            cmake: x64
             append: _64
 
           - arch: 32
             triplet: x84
+            cmake: Win32
 
     name: Windows ${{matrix.arch}}
 
@@ -390,7 +387,7 @@ jobs:
           mkdir -p build
           cd build
           export QTDIR="${{runner.workspace}}/Qt/$QT_VERSION/$QT_ARCH"
-          cmake .. -G "${{env.CMAKE_GENERATOR}}" -A "${{matrix.triplet}}" -DCMAKE_BUILD_TYPE="Release" -DWITH_SERVER=1 -DTEST=1
+          cmake .. -G "${{env.CMAKE_GENERATOR}}" -A "${{matrix.cmake}}" -DCMAKE_BUILD_TYPE="Release" -DWITH_SERVER=1 -DTEST=1
 
       - name: Build Cockatrice ${{matrix.arch}}-bit
         id: package

@@ -177,7 +177,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{matrix.distro}}-package
-          path: ${{steps.name.outputs.file}}
+          path: ${{steps.package.outputs.file}}
 
       - name: Upload to release
         if: matrix.package != 'skip' && needs.configure.outputs.tag != null
@@ -315,7 +315,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: macOS-${{matrix.target}}-xcode-${{matrix.xcode}}-dmg
-          path: ${{steps.name.outputs.file}}
+          path: ${{steps.package.outputs.file}}
 
       - name: Upload to release
         if: matrix.make_package && needs.configure.outputs.tag != null
@@ -350,7 +350,7 @@ jobs:
 
     env:
       QT_VERSION: '5.12.9'
-      QT_ARCH: win${{matrix.arch}}_msvc2017${{matrix.append}}
+      QT_ARCH: msvc2017${{matrix.append}}
       CMAKE_GENERATOR: 'Visual Studio 16 2019'
 
     steps:
@@ -367,13 +367,14 @@ jobs:
         uses: actions/cache@v2
         with:
           key: ${{runner.os}}-QtCache-${{matrix.arch}}
+          path: ${{runner.workspace}}/Qt
 
       - name: Install ${{matrix.arch}}-bit Qt
         uses: jurplel/install-qt-action@v2
         with:
           cached: ${{steps.cache-qt.outputs.cache-hit}}
           version: ${{env.QT_VERSION}}
-          arch: ${{env.QT_ARCH}}
+          arch: win${{matrix.arch}}_${{env.QT_ARCH}}
 
       - name: Restore or setup vcpkg
         uses: lukka/run-vcpkg@v6
@@ -388,7 +389,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          export QTDIR="${{runner.workspace}}/Qt/5.12.9/msvc2017${{matrix.append}}"
+          export QTDIR="${{runner.workspace}}/Qt/$QT_VERSION/$QT_ARCH"
           cmake .. -G "${{env.CMAKE_GENERATOR}}" -A "${{matrix.triplet}}" -DCMAKE_BUILD_TYPE="Release" -DWITH_SERVER=1 -DTEST=1
 
       - name: Build Cockatrice ${{matrix.arch}}-bit

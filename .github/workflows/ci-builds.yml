@@ -51,7 +51,7 @@ jobs:
             fi
           else // push to branch
             name="$GITHUB_SHA"
-          endif
+          fi
           echo "::set-output name=name::$name"
 
       - name: Checkout

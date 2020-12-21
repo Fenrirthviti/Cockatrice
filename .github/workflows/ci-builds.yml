@@ -49,7 +49,7 @@ jobs:
             else
               echo "::set-output name=is_beta::no"
             fi
-          else // push to branch
+          else # push to branch
             name="$GITHUB_SHA"
           fi
           echo "::set-output name=name::$name"

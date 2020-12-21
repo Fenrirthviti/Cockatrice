@@ -16,6 +16,8 @@ on:
 
 jobs:
   configure:
+    name: Configure
+
     runs-on: ubuntu-latest
 
     outputs:
@@ -117,6 +119,10 @@ jobs:
             package: RPM
             test: skip # Fedora is our slowest build
 
+    name: ${{matrix.distro}}
+
+    needs: configure
+
     runs-on: ubuntu-latest
 
     continue-on-error: ${{matrix.allow-failure == 'yes'}}
@@ -174,12 +180,12 @@ jobs:
           path: ${{steps.name.outputs.file}}
 
       - name: Upload to release
-        if: matrix.package != 'skip' && jobs.configure.outputs.tag != null
+        if: matrix.package != 'skip' && needs.configure.outputs.tag != null
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{github.token}}
         with:
-          upload_url: ${{jobs.configure.outputs.upload_url}}
+          upload_url: ${{needs.configure.outputs.upload_url}}
           asset_path: ${{steps.package.outputs.path}}
           asset_name: ${{steps.package.outputs.name}}
           asset_content_type: application/octet-stream
@@ -230,6 +236,10 @@ jobs:
             type: Release
             do_tests: 0
             make_package: true
+
+    name: macOS ${{matrix.target}}
+
+    needs: configure
 
     runs-on: ${{matrix.os}}
 
@@ -308,12 +318,12 @@ jobs:
           path: ${{steps.name.outputs.file}}
 
       - name: Upload to release
-        if: matrix.make_package && jobs.configure.outputs.tag != null
+        if: matrix.make_package && needs.configure.outputs.tag != null
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{github.token}}
         with:
-          upload_url: ${{jobs.configure.outputs.upload_url}}
+          upload_url: ${{needs.configure.outputs.upload_url}}
           asset_path: ${{steps.package.outputs.path}}
           asset_name: ${{steps.package.outputs.name}}
           asset_content_type: application/octet-stream
@@ -333,6 +343,8 @@ jobs:
             triplet: x84
 
     name: Windows ${{matrix.arch}}
+
+    needs: configure
 
     runs-on: windows-latest
 
@@ -395,16 +407,16 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{jobs.configure.outputs.name}}
+          name: ${{needs.configure.outputs.name}}
           path: ${{steps.package.outputs.path}}
 
       - name: Upload to release
-        if: jobs.configure.outputs.tag != null
+        if: needs.configure.outputs.tag != null
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{github.token}}
         with:
-          upload_url: ${{jobs.configure.outputs.upload_url}}
+          upload_url: ${{needs.configure.outputs.upload_url}}
           asset_path: ${{steps.package.outputs.path}}
           asset_name: ${{steps.package.outputs.name}}
           asset_content_type: application/octet-stream

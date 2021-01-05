@@ -165,12 +165,11 @@ jobs:
         id: package
         if: matrix.package != 'skip'
         shell: bash
+        env:
+          SUFFIX: '-${{matrix.distro}}'
         run: |
           source .ci/docker.sh
           RUN --server --release --package ${{matrix.package}}
-          # artifacts built on docker are made by a different user
-          sudo chmod 777 build
-          ./.ci/name_build.sh "-${{matrix.distro}}"
 
       - name: Upload artifacts
         if: matrix.package != 'skip'
@@ -302,7 +301,7 @@ jobs:
         working-directory: build
         run: |
           cmake --build . --target package
-          ./.ci/name_build.sh "-macOS-${{matrix.target}}"
+          ../.ci/name_build.sh "-macOS-${{matrix.target}}"
 
       - name: Upload artifacts
         if: matrix.make_package
@@ -396,7 +395,7 @@ jobs:
         working-directory: build
         run: |
           cmake --build .
-          ./.ci/name_build.sh "-win${{matrix.arch}}"
+          ../.ci/name_build.sh "-win${{matrix.arch}}"
 
       - name: Run tests
         shell: bash

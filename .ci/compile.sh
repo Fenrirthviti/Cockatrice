@@ -121,4 +121,8 @@ if [[ $MAKE_PACKAGE ]]; then
   echo "::group::Create package"
   cmake --build . --target package
   echo "::endgroup::"
+
+  echo "::group::Update package name"
+  ./.ci/name_build.sh
+  echo "::endgroup::"
 fi

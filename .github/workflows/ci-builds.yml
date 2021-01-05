@@ -395,7 +395,7 @@ jobs:
         shell: bash
         working-directory: build
         run: |
-          ${{steps.add-msbuild.outputs.msbuildPath}} -maxCpuCount -property:Configuration=Release ./Cockatrice.sln
+          cmake --build .
           ./.ci/name_build.sh "-win${{matrix.arch}}"
 
       - name: Run tests

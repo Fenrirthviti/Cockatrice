@@ -123,6 +123,6 @@ if [[ $MAKE_PACKAGE ]]; then
   echo "::endgroup::"
 
   echo "::group::Update package name"
-  ./.ci/name_build.sh
+  ../.ci/name_build.sh
   echo "::endgroup::"
 fi

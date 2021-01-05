@@ -3,7 +3,8 @@
 # renames the file to [original name][SUFFIX].[original extension]
 # where SUFFIX is either available in the environment or as the first arg
 # if MAKE_ZIP is set instead a zip is made
-# expected to be run in the project root directory
+# expected to be run in the build directory
+buildddir="."
 
 if [[ $1 ]]; then
   SUFFIX="$1"
@@ -18,7 +19,7 @@ fi
 set -e
 
 # find file
-found="$(find build -maxdepth 1 -type f -name "Cockatrice-*.*" -print -quit)"
+found="$(find "$builddir" -maxdepth 1 -type f -name "Cockatrice-*.*" -print -quit)"
 path="${found%/*}"
 file="${found##*/}"
 if [[ ! $file ]]; then

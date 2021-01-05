@@ -177,7 +177,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{matrix.distro}}-package
-          path: ${{steps.package.outputs.file}}
+          path: ${{steps.package.outputs.path}}
 
       - name: Upload to release
         if: matrix.package != 'skip' && needs.configure.outputs.tag != null
@@ -309,7 +309,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: macOS-${{matrix.target}}-xcode-${{matrix.xcode}}-dmg
-          path: ${{steps.package.outputs.file}}
+          path: ${{steps.package.outputs.path}}
 
       - name: Upload to release
         if: matrix.make_package && needs.configure.outputs.tag != null
@@ -352,6 +352,7 @@ jobs:
 
     steps:
       - name: Add msbuild to PATH
+        id: add-msbuild
         uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Checkout
@@ -394,7 +395,7 @@ jobs:
         shell: bash
         working-directory: build
         run: |
-          msbuild -maxCpuCount -property:Configuration=Release ./Cockatrice.sln
+          ${{steps.add-msbuild.outputs.msbuildPath}} -maxCpuCount -property:Configuration=Release ./Cockatrice.sln
           ./.ci/name_build.sh "-win${{matrix.arch}}"
 
       - name: Run tests

@@ -4,7 +4,7 @@
 # where SUFFIX is either available in the environment or as the first arg
 # if MAKE_ZIP is set instead a zip is made
 # expected to be run in the build directory
-buildddir="."
+builddir="."
 
 if [[ $1 ]]; then
   SUFFIX="$1"

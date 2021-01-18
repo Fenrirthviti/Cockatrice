@@ -137,6 +137,9 @@ function RUN ()
     if [[ $CCACHE_DIR ]]; then
       args+=" --mount type=bind,source=$CCACHE_DIR,target=/.ccache -e CCACHE_DIR=/.ccache"
     fi
+    if [[ $SUFFIX ]]; then
+      args+=" -e SUFFIX=$SUFFIX"
+    fi
     docker run $args $RUN_ARGS "$IMAGE_NAME" bash "$BUILD_SCRIPT" $RUN_OPTS $@
     return $?
   else

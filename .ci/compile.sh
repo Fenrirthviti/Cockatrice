@@ -22,11 +22,16 @@ while [[ "$@" ]]; do
       if [[ $# != 0 && $1 != -* ]]; then
         PACKAGE_TYPE="$1"
         shift
-        if [[ $# != 0 && $1 != -* ]]; then
-          PACKAGE_SUFFIX="$1"
-          shift
-        fi
       fi
+      ;;
+    '--suffix')
+      shift
+      if [[ $# == 0 ]]; then
+        echo "::error file=$0::--suffix expects an argument"
+        exit 1
+      fi
+      PACKAGE_SUFFIX="$1"
+      shift
       ;;
     '--server')
       MAKE_SERVER=1

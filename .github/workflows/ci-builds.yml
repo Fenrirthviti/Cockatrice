@@ -170,7 +170,7 @@ jobs:
           type: '${{matrix.package}}'
         run: |
           source .ci/docker.sh
-          RUN --server --release --package "$type" "$suffix"
+          RUN --server --release --package "$type" --suffix "$suffix"
 
       - name: Upload artifacts
         if: matrix.package != 'skip'

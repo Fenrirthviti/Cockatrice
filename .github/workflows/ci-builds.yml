@@ -177,7 +177,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{matrix.distro}}-package
-          path: ${{steps.package.outputs.path}}
+          path: ./build/${{steps.package.outputs.name}}
 
       - name: Upload to release
         if: matrix.package != 'skip' && needs.configure.outputs.tag != null
@@ -186,7 +186,7 @@ jobs:
           GITHUB_TOKEN: ${{github.token}}
         with:
           upload_url: ${{needs.configure.outputs.upload_url}}
-          asset_path: ${{steps.package.outputs.path}}
+          asset_path: ./build/${{steps.package.outputs.name}}
           asset_name: ${{steps.package.outputs.name}}
           asset_content_type: application/octet-stream
 

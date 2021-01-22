@@ -37,11 +37,14 @@ name="${file%.*}" # remove all after last .
 new_name="$name$SUFFIX."
 if [[ $MAKE_ZIP ]]; then
   filename="${new_name}zip"
+  echo "creating zip '$filename' from '$file'"
   zip "$filename" "$file"
 else
   extension="${file##*.}" # remove all before last .
   filename="$new_name$extension"
+  echo "renaming '$file' to '$filename'"
   mv "$file" "$filename"
 fi
+ls -l "$PWD/$filename"
 echo "::set-output name=path::$PWD/$filename"
 echo "::set-output name=name::$filename"

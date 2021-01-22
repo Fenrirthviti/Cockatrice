@@ -5,6 +5,9 @@
 # Read arguments
 while [[ "$@" ]]; do
   case "$1" in
+    '--')
+      shift
+      ;;
     '--format')
       CHECK_FORMAT=1
       shift
@@ -19,6 +22,10 @@ while [[ "$@" ]]; do
       if [[ $# != 0 && $1 != -* ]]; then
         PACKAGE_TYPE="$1"
         shift
+        if [[ $# != 0 && $1 != -* ]]; then
+          PACKAGE_SUFFIX="$1"
+          shift
+        fi
       fi
       ;;
     '--server')
@@ -122,7 +129,9 @@ if [[ $MAKE_PACKAGE ]]; then
   cmake --build . --target package
   echo "::endgroup::"
 
-  echo "::group::Update package name"
-  ../.ci/name_build.sh
-  echo "::endgroup::"
+  if [[ $PACKAGE_SUFFIX ]]; then
+    echo "::group::Update package name"
+    ../.ci/name_build.sh "$PACKAGE_SUFFIX"
+    echo "::endgroup::"
+  fi
 fi

@@ -5,6 +5,7 @@
 # if MAKE_ZIP is set instead a zip is made
 # expected to be run in the build directory
 builddir="."
+findrx="Cockatrice-*.*"
 
 if [[ $1 ]]; then
   SUFFIX="$1"
@@ -19,24 +20,28 @@ fi
 set -e
 
 # find file
-found="$(find "$builddir" -maxdepth 1 -type f -name "Cockatrice-*.*" -print -quit)"
-path="${found%/*}"
-file="${found##*/}"
+found="$(find "$builddir" -maxdepth 1 -type f -name "$findrx" -print -quit)"
+path="${found%/*}" # remove all after last /
+file="${found##*/}" # remove all before last /
 if [[ ! $file ]]; then
   echo "::error file=$0::could not find package"
   exit 1
 fi
+if ! cd "$path"; then
+  echo "::error file=$0::could not get file path"
+  exit 1
+fi
 
 # set filename
-name="${file%.*}"
-new_name="$path/$name$SUFFIX."
+name="${file%.*}" # remove all after last .
+new_name="$name$SUFFIX."
 if [[ $MAKE_ZIP ]]; then
   filename="${new_name}zip"
-  zip "$filename" "$path/$file"
+  zip "$filename" "$file"
 else
-  extension="${file##*.}"
+  extension="${file##*.}" # remove all before last .
   filename="$new_name$extension"
-  mv "$path/$file" "$filename"
+  mv "$file" "$filename"
 fi
-echo "::set-output name=path::$filename"
-echo "::set-output name=name::${filename##*/}"
+echo "::set-output name=path::$PWD/$filename"
+echo "::set-output name=name::$filename"

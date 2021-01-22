@@ -57,7 +57,7 @@ if ! [[ $NAME ]]; then
   return 3
 fi
 
-export IMAGE_NAME="${project_name,,}_${NAME,,}"
+export IMAGE_NAME="${project_name,,}_${NAME,,}" # lower case
 
 docker_dir=".ci/$NAME"
 if ! [[ -r $docker_dir/Dockerfile ]]; then
@@ -133,12 +133,9 @@ function RUN ()
 {
   echo "running image:"
   if docker images | grep "$IMAGE_NAME"; then
-    args="--mount type=bind,source=$(pwd),target=/src -w=/src"
+    args="--mount type=bind,source=$PWD,target=/src -w=/src"
     if [[ $CCACHE_DIR ]]; then
       args+=" --mount type=bind,source=$CCACHE_DIR,target=/.ccache -e CCACHE_DIR=/.ccache"
-    fi
-    if [[ $SUFFIX ]]; then
-      args+=" -e SUFFIX=$SUFFIX"
     fi
     docker run $args $RUN_ARGS "$IMAGE_NAME" bash "$BUILD_SCRIPT" $RUN_OPTS $@
     return $?

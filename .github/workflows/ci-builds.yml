@@ -38,9 +38,9 @@ jobs:
         run: |
           tag_regex='^refs/tags/'
           beta_regex='beta'
-          if [[ $GITHUB_EVENT_NAME == pull-request ]]; then
+          if [[ $GITHUB_EVENT_NAME == pull-request ]]; then # pull request
             name="${{github.event.pull_request.head.sha}}"
-          elif [[ $GITHUB_REF =~ $tag_regex ]]; then
+          elif [[ $GITHUB_REF =~ $tag_regex ]]; then # release
             tag="${GITHUB_REF/refs\/tags\//}"
             name="$tag-$GITHUB_SHA"
             echo "::set-output name=tag::$tag"
@@ -63,7 +63,7 @@ jobs:
         if: steps.configure.outputs.tag != null
         shell: bash
         run: |
-          name_regex='set\(GIT_TAG_RELEASENAME "(\p+)")'
+          name_regex='set\(GIT_TAG_RELEASENAME "([[:print:]]+)")'
           if [[ $(cat CMakeLists.txt) =~ $name_regex ]]; then
             name="${BASH_REMATCH[1]}"
             title="Cockatrice ${{steps.configure.name}}: $name"
@@ -166,10 +166,11 @@ jobs:
         if: matrix.package != 'skip'
         shell: bash
         env:
-          SUFFIX: '-${{matrix.distro}}'
+          suffix: '-${{matrix.distro}}'
+          type: '${{matrix.package}}'
         run: |
           source .ci/docker.sh
-          RUN --server --release --package ${{matrix.package}}
+          RUN --server --release --package "$type" "$suffix"
 
       - name: Upload artifacts
         if: matrix.package != 'skip'
@@ -394,7 +395,7 @@ jobs:
         shell: bash
         working-directory: build
         run: |
-          cmake --build .
+          cmake --build . --target package
           ../.ci/name_build.sh "-win${{matrix.arch}}"
 
       - name: Run tests
@@ -405,7 +406,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{needs.configure.outputs.name}}
+          name: Windows-${{matrix.arch}}bit-installer
           path: ${{steps.package.outputs.path}}
 
       - name: Upload to release
